@@ -1,0 +1,95 @@
+class Stack:
+
+    # Инициализация объекта execution
+
+    def __init__(self):
+        self.stack = []
+        self.max_length = 10
+        self.counter = 1
+        self.length = len(self.stack)
+
+    # Метод вставки данных в stack
+
+    def push(self):
+        self.stack.append(self.counter)
+        if len(self.stack) <= 10:
+            self.counter += 1
+            return self.stack
+        else:
+            self.counter = self.stack.pop(-1)
+            return 'FULL'
+
+    # Метод вытаскивания данных из stack
+
+    def pop(self):
+        self.counter = self.stack.pop(-1)
+        if len(self.stack) > 0:
+            return self.stack
+        else:
+            return 'EMPTY'
+
+    # Метод проверки stack на пустоту
+
+    def is_empty(self):
+        return len(self.stack) == 0
+
+    # Метод проверки stack на полноту
+
+    def is_full(self):
+        return len(self.stack) == 10
+
+    # Метод, "вытаскивающий" последнее значение stack
+
+    def peek(self):
+        if len(self.stack) == 0:
+            return 'ERROR: EMPTY STACK'
+        else:
+            return self.stack[-1]
+
+
+# Функция проверки валидности входных данных
+
+def try_command(command):
+    flag = True
+    while flag is True:
+        try:
+            command = int(input())
+
+        except ValueError:
+            print('Wrong value!')
+
+        else:
+            flag = False
+
+    return command
+
+
+# Тело программы
+
+def body(commands, top_element, execution, command):
+
+    while command != 6:   # 6=quit
+
+        # Проверяем наличие желаемого индекса в списке действий
+
+        if command not in range(1, 6):
+            print('Wrong answer!')
+            command = try_command(command)  # Возвращаемся к проверке валидности данных
+
+        else:
+            command_exec = eval(f'execution.{commands[command].lower()}')   # Динамически преобразуем строку в метод
+            print(command_exec())   # Отображение результата выбранного метода (хз пока как сделать иначе)
+            command = try_command(command)  # Возвращаемся к проверке валидности данных
+
+    else:
+        print('Exiting...')
+
+
+commands = ['', 'push', 'pop', 'is_empty', 'is_full', 'peek']   # Список команд
+top_element = -1    # Значение верхнего элемента по умолчанию (пустой stack)
+execution = Stack()    # Присвоение объекта классу
+command = None  # Значение команды по умолчанию
+
+print('What do you want to do with a stack?\n[1]Push\n[2]Pop\n[3]IsEmpty\n[4]IsFull\n[5]Peek\n[6]Quit')
+body(commands, top_element, execution, try_command(command))
+
