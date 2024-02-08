@@ -1,0 +1,266 @@
+import graphviz
+
+commands_other = ['', 'insert', 'delete', 'maximum', 'minimum', 'maximum_delete',
+                  'minimum_delete']  # список команд для функции eval()
+
+input_command_sort = 0  # переменная для максимизации/минимизации древа
+input_command_other = 0  # переменная для прочих команд
+input_value = 0  # переменная для заполнения изначального массива
+array = []
+minmax = ''  # "флаг" позволяющий сортировать древо в соответствии с input_command_sort после работы с прочими командами
+
+
+# формирование изначального массива
+def set_array(input_value, array):
+    print('Пожалуйста, заполните массив данными. Когда закончите, введите букву "q"')
+
+    while input_value != 'q':
+        input_value = input()
+
+        if input_value != 'q':
+            array.append(int(input_value))
+
+        else:
+            print(f'Ваш массив:\n{array}')
+            return array
+
+
+array = set_array(input_value, array)
+
+
+# операции с массивом
+class Sorting:
+
+    def __init__(self):
+
+        self.start = 0  # индекс верхнего нода, сравниваемого с двумя нижними
+        self.end = len(array)  # чек для конца сортировки
+        self.left = 1  # левая ветвь
+        self.right = 2  # правая ветвь
+        self.value = 1  # дефолт значение для вставки, переопределяется
+        self.del_index = 0  # дефолт индекс для удаления, переопределяется
+
+    # статический метод для перемещения значений
+    def swap(self, index_second, option):
+
+        if array[self.start] > array[index_second] and option == 'MIN':
+            array[self.start], array[index_second] = array[index_second], array[self.start]
+        elif array[self.start] < array[index_second] and option == 'MAX':
+            array[self.start], array[index_second] = array[index_second], array[self.start]
+
+        return array
+
+
+    # минимизация древа
+    def heap_minimize(self):
+
+        global array
+        self.end = len(array)
+        for i in range(self.end):
+            self.start = 0
+            self.left = 1
+            self.right = 2
+            for j in range(self.end):
+
+                if self.start <= self.end and self.right < self.end:
+                    array = self.swap(self.right, 'MIN')
+
+                if self.start <= self.end and self.left < self.end:
+                    array = self.swap(self.left, 'MIN')
+
+                self.start += 1
+                self.left = self.start * 2 + 1
+                self.right = self.start * 2 + 2
+
+        return array
+
+    # максимизация древа
+    def heap_maximize(self):
+
+        global array
+        self.end = len(array)
+        for i in range(self.end):
+            self.start = 0
+            self.left = 1
+            self.right = 2
+            for j in range(self.end):
+                if self.start < self.end and self.right < self.end:
+                    array = self.swap(self.right, 'MAX')
+
+                if self.start < self.end and self.left < self.end:
+                    array = self.swap(self.left, 'MAX')
+
+                self.start += 1
+                self.left = self.start * 2 + 1
+                self.right = self.start * 2 + 2
+        print(array)
+        return array
+
+    # вставка значения
+    def insert(self):
+        global array
+        print('Укажите желаемое значение:')
+        self.value = int(input())
+        array.append(self.value)
+
+        if minmax == 'maximal':
+            array = self.heap_maximize()
+        elif minmax == 'minimal':
+            array = self.heap_minimize()
+
+        return array
+
+    # удаление значения по индексу
+    def delete(self):
+        global array
+        print('Введите индекс значения, которое хотели бы удалить:')
+        self.del_index = int(input())
+        print(array)
+
+        # условный оператор, проверяющий отношение индекса к "ветвям" либо "листьям"
+        if self.del_index > len(array) // 2:
+            array.pop(self.del_index)
+            if minmax == 'maximal':
+                array = self.heap_maximize()
+            elif minmax == 'minimal':
+                array = self.heap_minimize()
+
+        else:
+            array[self.del_index], array[-1] = array[-1], array[self.del_index]
+            array.pop(-1)
+            if minmax == 'maximal':
+                array = self.heap_maximize()
+            elif minmax == 'minimal':
+                array = self.heap_minimize()
+
+        return array
+
+    def maximum(self):
+        print('Максимальное значение:')
+        print(max(array))
+        return array
+
+    def minimum(self):
+        print('Минимальное значение:')
+        print(min(array))
+        return array
+
+    def maximum_delete(self):
+        global array
+        maximum_del = array.pop(array.index(max(array)))
+        if minmax == 'maximal':
+            array = self.heap_maximize()
+        elif minmax == 'minimal':
+            array = self.heap_minimize()
+        return array
+
+    def minimum_delete(self):
+        global array
+        maximum_del = array.pop(array.index(min(array)))
+        if minmax == 'maximal':
+            array = self.heap_maximize()
+        elif minmax == 'minimal':
+            array = self.heap_minimize()
+        return array
+
+
+# преобразование массива из класса Sort в список списков для более удобной работы со вставкой/удалением и визуализацией
+class Tree:
+
+    def __init__(self):
+        self.inner_arrays = []  # внешний список для вложенных
+        self.start = 0  # индексы для среза
+        self.end = 1
+
+    def visualize(self):
+        self.inner_arrays = []
+        for i in range(len(array)):
+            if len(array[self.start:self.end]) == 0:  # убирает лишние итерации, создающие пустые списки
+                break
+            self.inner_arrays.append(array[self.start:self.end])  # превращает срезы во вложенные списки
+            self.start = self.start * 2 + 1  # инкриминирование начального индекса "ветви"
+            self.end = self.end * 2 + 1  # инкриминирование начального индекса "ветви"
+        self.start = 0  # сброс индексов для работы с прочими командами
+        self.end = 1
+        return self.inner_arrays
+
+
+sort = Sorting()
+tree = Tree()
+
+
+# визуализация древа с помощью graphviz
+def output(visualized_tree):
+    dot = graphviz.Digraph('heaps-tree')
+    parent_index = 0  # счётчик индекса, на который можно ссылаться "листьям". увеличивается при каждом цикле counter_check
+
+    index = 0  # индекс фактического значения, по которому работает итерация в данный момент
+    counter = 1  # индекс второй "ветви". итерация начинается с неё, т.к. верхний родитель всегда один
+
+    counter_check = 0  # бинарный счетчик
+    dot.node(str(parent_index), 'index ' + str(parent_index) + '\nvalue ' + str(visualized_tree[0][0]))  # главный родитель
+    for elem in visualized_tree[1:]:
+        for i in range(len(elem)):
+            index += 1
+            dot.node(str(index), 'index ' + str(index) + '\nvalue ' + str(visualized_tree[counter][i]))  # отображаем элемент на дереве
+            if counter_check > 1:
+                counter_check = 0
+                parent_index += 1
+
+            dot.edge(str(parent_index), str(index))
+            counter_check += 1
+        counter += 1
+
+    dot.view()  # просмотр итогового древа
+
+
+# выбор типа сортировки
+def set_command(array, input_command_sort):
+    global minmax
+    print('Массив будет сортироваться по максимуму в верхней ячейке или по минимуму?\n1 - для максимума\n2 - для '
+          'минимума')
+    input_command_sort = int(input())
+
+    if input_command_sort == 1:
+        minmax = 'maximal'
+        array = sort.heap_maximize()
+        visualized_tree = tree.visualize()
+        output(visualized_tree)
+        print('Ваш массив:')
+        print(array)
+        return array
+    elif input_command_sort == 2:
+
+        minmax = 'minimal'
+        array = sort.heap_minimize()
+        visualized_tree = tree.visualize()
+        output(visualized_tree)
+        print('Ваш массив:')
+        print(array)
+
+    return array
+
+
+# работа с прочими командами
+def other_commands(input_command_other, commands_other):
+    global array
+    print('Желаете ли провести дополнительную операцию с деревом?\n1 - вставка значения\n2 - удаление значения\n'
+          '3 - вывести максимальное значение\n4 - вывести минимальное значение\n5 - удалить максимальное значение'
+          '\n6 - удалить минимальное значение\n7 - завершить работу')
+    input_command_other = int(input())
+    while input_command_other != 7:
+        if input_command_other != 3 and input_command_other != 4:  # исключаем команды 3 и 4, чтобы не выводить дерево
+            array = eval(f'sort.{commands_other[input_command_other]}()')
+            visualized_tree = tree.visualize()
+            output(visualized_tree)
+        else:
+            array = eval(f'sort.{commands_other[input_command_other]}()')
+        print('Желаете ли провести дополнительную операцию с деревом?\n1 - вставка значения\n2 - удаление значения\n'
+              '3 - вывести максимальное значение\n4 - вывести минимальное значение\n5 - удалить максимальное значение'
+              '\n6 - удалить минимальное значение\n7 - завершить работу')
+        input_command_other = int(input())
+
+
+array = set_command(array, input_command_sort)
+
+other_commands(input_command_other, commands_other)
