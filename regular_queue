@@ -178,8 +178,8 @@ class Tree:
             if len(array[self.start:self.end]) == 0:  # убирает лишние итерации, создающие пустые списки
                 break
             self.inner_arrays.append(array[self.start:self.end])  # превращает срезы во вложенные списки
-            self.start = self.start * 2 + 1  # инкриминирование начального индекса "ветви"
-            self.end = self.end * 2 + 1  # инкриминирование начального индекса "ветви"
+            self.start = self.start * 2 + 1  # инкрементация начального индекса "ветви"
+            self.end = self.end * 2 + 1  # инкрементация конечного индекса "ветви"
         self.start = 0  # сброс индексов для работы с прочими командами
         self.end = 1
         return self.inner_arrays
