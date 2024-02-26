@@ -1,0 +1,44 @@
+class BinarySearch:
+    def __init__(self, value=None):
+        self.key = value
+        self.left = None
+        self.right = None
+
+    def forming(self, value):
+        if self.key is None:
+            self.key = value
+            return
+        if value < self.key:
+            if self.left:
+                self.left.forming(value)
+                return
+            self.left = BinarySearch(value)
+            return
+
+        if self.right:
+            self.right.forming(value)
+            return
+        self.right = BinarySearch(value)
+
+    def search(self, value):
+        if value == self.key:
+            print('IN TREE')
+            return
+        elif value < self.key and self.left:
+            self.left.search(value)
+        elif value > self.key and self.right:
+            self.right.search(value)
+        if self.left is None and self.right is None:
+            print('OUT OF TREE')
+            return
+
+
+values = [4, 5, 3, 7, 8, 6, 11, 2, -1, -20]
+binary_search = BinarySearch()
+search_value = 11
+
+for value in values:
+
+    binary_search.forming(value)
+
+binary_search.search(search_value)
